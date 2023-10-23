@@ -1,0 +1,23 @@
+[package]
+name = "near-deposit-withdraw"
+version = "0.2.0"
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "4.1.1"
+near-contract-standards = { version="=4.1.1" }
+thiserror = "1"
+hex = "0.4"
+
+[profile.release]
+codegen-units = 1
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true
