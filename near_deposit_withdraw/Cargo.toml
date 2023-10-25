@@ -1,5 +1,5 @@
 [package]
-name = "near-deposit-withdraw"
+name = "near_deposit_withdraw"
 version = "0.2.0"
 edition = "2018"
 publish = false

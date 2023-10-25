@@ -1,3 +1,6 @@
 [submodule "aurora-sdk"]
 	path = aurora-sdk
 	url = https://github.com/aurora-is-near/aurora-contracts-sdk.git
+[submodule "aurora-deposit-withdraw/lib/forge-std"]
+	path = aurora-deposit-withdraw/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

@@ -622,16 +622,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "near-deposit-withdraw"
-version = "0.2.0"
-dependencies = [
- "hex",
- "near-contract-standards",
- "near-sdk",
- "thiserror",
-]
-
-[[package]]
 name = "near-primitives"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -772,6 +762,16 @@ dependencies = [
  "sha2 0.10.8",
  "sha3",
  "zeropool-bn",
+]
+
+[[package]]
+name = "near_deposit_withdraw"
+version = "0.2.0"
+dependencies = [
+ "hex",
+ "near-contract-standards",
+ "near-sdk",
+ "thiserror",
 ]
 
 [[package]]
