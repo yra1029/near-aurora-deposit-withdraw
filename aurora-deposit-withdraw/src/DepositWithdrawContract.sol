@@ -7,6 +7,7 @@ import 'openzeppelin-contracts/utils/Strings.sol';
 import './IEvmErc20.sol';
 import { AuroraSdk, Codec, NEAR, PromiseCreateArgs, PromiseResult, PromiseResultStatus, PromiseWithCallback } from 'aurora-sdk/AuroraSdk.sol';
 
+uint64 constant STORAGE_DEPOSIT_NEAR_GAS = 20_000_000_000_000;
 uint64 constant DEPOSIT_NEAR_GAS = 40_000_000_000_000;
 uint64 constant WITHDRAW_NEAR_GAS = 50_000_000_000_000;
 uint64 constant CALLBACK_NEAR_GAS = 15_000_000_000_000;
@@ -36,6 +37,42 @@ contract DepositWithdrawContract is AccessControl {
     );
   }
 
+    function storageDeposit(bool registrationOnly) public payable {
+    if (msg.value == 0) {
+      revert('Calling "storageDeposit" requires attached wei');
+    }
+
+    bytes memory data = abi.encodePacked(
+      '{',
+      '"account_id": "aurora:',
+      Strings.toHexString(uint160(msg.sender), 20),
+      '",',
+      '"registration_only": ',
+      registrationOnly ? 'true' : 'false',
+      '}'
+    );
+    PromiseCreateArgs memory callStorageDeposit = near.call(
+      nearContractId,
+      'storage_deposit',
+      data,
+      uint128(msg.value) * _weiToYoctoNearMultiplier,
+      STORAGE_DEPOSIT_NEAR_GAS
+    );
+    PromiseCreateArgs memory callback = near.auroraCall(
+      address(this),
+      abi.encodePacked(this.storageDepositCallback.selector),
+      0,
+      CALLBACK_NEAR_GAS
+    );
+    callStorageDeposit.then(callback).transact();
+  }
+
+  function storageDepositCallback() public onlyRole(CALLBACK_ROLE) {
+    if (AuroraSdk.promiseResult(0).status != PromiseResultStatus.Successful) {
+      revert('Call to storage_deposit failed');
+    }
+  }
+
   function deposit(
     IEvmErc20 token,
     string memory tokenIdOnNear,
@@ -57,7 +94,7 @@ contract DepositWithdrawContract is AccessControl {
       '",',
       '"msg": "{\\"xcc_account_id\\": {\\"chain\\": \\"Aurora\\", \\"account_id\\": \\"',
       Strings.toHexString(uint160(msg.sender), 20),
-      '\\"}',
+      '\\"}}"',
       '}'
     );
     PromiseCreateArgs memory callFtTransfer = near.call(
